@@ -1,0 +1,35 @@
+import java.util.*;
+
+public class DijkstraSearch<V> implements Search<V> {
+    private Map<Vertex<V>, Double> distances = new HashMap<>();
+    private Map<Vertex<V>, Vertex<V>> previous = new HashMap<>();
+
+    @Override
+    public List<Vertex<V>> getPath(Vertex<V> source, Vertex<V> destination) {
+        PriorityQueue<Vertex<V>> queue = new PriorityQueue<>(Comparator.comparing(distances::get));
+        distances.put(source, 0.0);
+        queue.add(source);
+
+        while (!queue.isEmpty()) {
+            Vertex<V> current = queue.poll();
+
+            for (Map.Entry<Vertex<V>, Double> neighborEntry : current.getAdjacentVertices().entrySet()) {
+                Vertex<V> neighbor = neighborEntry.getKey();
+                double weight = neighborEntry.getValue();
+                double totalDistance = distances.getOrDefault(current, Double.MAX_VALUE) + weight;
+
+                if (totalDistance < distances.getOrDefault(neighbor, Double.MAX_VALUE)) {
+                    distances.put(neighbor, totalDistance);
+                    previous.put(neighbor, current);
+                    queue.add(neighbor);
+                }
+            }
+        }
+
+        List<Vertex<V>> path = new LinkedList<>();
+        for (Vertex<V> at = destination; at != null; at = previous.get(at)) {
+            path.add(0, at);
+        }
+        return path;
+    }
+}
